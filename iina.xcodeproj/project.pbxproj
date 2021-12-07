@@ -83,6 +83,7 @@
 		49718006272BA685003F328C /* libzstd.1.dylib in Copy Dylibs */ = {isa = PBXBuildFile; fileRef = 49717FBE272BA678003F328C /* libzstd.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		51492FCE2714DE0C00C1FC3C /* PlaySlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51492FCD2714DE0C00C1FC3C /* PlaySlider.swift */; };
 		51B494D82718FDD700B9381A /* PlaySliderLoopKnob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51B494D72718FDD700B9381A /* PlaySliderLoopKnob.swift */; };
+		51B99031275EF5A900E8A595 /* CameraAreaMaskWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51B99030275EF5A900E8A595 /* CameraAreaMaskWindow.swift */; };
 		6100FF2B1EDF9806002CF0FB /* dsa_pub.pem in Resources */ = {isa = PBXBuildFile; fileRef = 6100FF2A1EDF9806002CF0FB /* dsa_pub.pem */; };
 		8400D5C41E17C6D2006785F5 /* AboutWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8400D5C21E17C6D2006785F5 /* AboutWindowController.swift */; };
 		8400D5C61E1AB2F1006785F5 /* MainWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8400D5C81E1AB2F1006785F5 /* MainWindowController.xib */; };
@@ -504,6 +505,7 @@
 		49717FC4272BA678003F328C /* libavutil.56.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libavutil.56.dylib; path = deps/lib/libavutil.56.dylib; sourceTree = "<group>"; };
 		51492FCD2714DE0C00C1FC3C /* PlaySlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaySlider.swift; sourceTree = "<group>"; };
 		51B494D72718FDD700B9381A /* PlaySliderLoopKnob.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaySliderLoopKnob.swift; sourceTree = "<group>"; };
+		51B99030275EF5A900E8A595 /* CameraAreaMaskWindow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraAreaMaskWindow.swift; sourceTree = "<group>"; };
 		5879479521A87DD700757A6F /* sk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sk; path = sk.lproj/MiniPlayerWindowController.strings; sourceTree = "<group>"; };
 		5879479621A87E6100757A6F /* sk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sk; path = sk.lproj/PreferenceWindowController.strings; sourceTree = "<group>"; };
 		5EF9F7E521FB42E900748374 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/MainMenu.strings"; sourceTree = "<group>"; };
@@ -1648,6 +1650,7 @@
 		84A0BAA31D2FAEA000BC8DA1 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				51B99030275EF5A900E8A595 /* CameraAreaMaskWindow.swift */,
 				84A0BA931D2F9E9600BC8DA1 /* MainMenu.xib */,
 				E38BD4AE20054BD9007635FC /* MainWindow.swift */,
 				84CFC92523F8DDE000381E5B /* PlayerWindowController.swift */,
@@ -2385,6 +2388,7 @@
 				E3CB75BD1FDACB82004DB10A /* SavedFilter.swift in Sources */,
 				E342832F20B7149800139865 /* Logger.swift in Sources */,
 				E3DBD23B218B199700B3AFBF /* Translators.swift in Sources */,
+				51B99031275EF5A900E8A595 /* CameraAreaMaskWindow.swift in Sources */,
 				84F725561D4783EE000DEF1B /* VolumeSliderCell.swift in Sources */,
 				845040401E0ACADD0079C194 /* MPVNode.swift in Sources */,
 				84795C3A1E083EE30059A648 /* PrefControlViewController.swift in Sources */,
