@@ -2,46 +2,26 @@ name: CI
 
 on:
   push:
-      branches: [master]
+      branches: [develop]
 
 jobs:
   build:
-    runs-on: macos-arm64
-
-    defaults:
-      run:
-        shell: arch -arch arm64e bash -l -eo pipefail {0}
+    runs-on: macos-latest
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install dependencies
-        run: ./other/download_libs.sh
+      - name: Prepare
+        run: |
+          brew update
+          cp other/*-iina.rb $(brew --repo homebrew/core)/Formula
+          brew install create-dmg
 
-      - run: |-
-          cat <<EOF > ./options.plist
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-              <key>destination</key>
-              <string>export</string>
-              <key>method</key>
-              <string>mac-application</string>
-          </dict>
-          </plist>
-          EOF
+      - name: Install dependencies
+        run: make depends
 
       - name: Build
-        run: xcodebuild -project iina.xcodeproj -scheme iina -config Release -archivePath ./archive archive
-
-      - name: Export
-        run: xcodebuild -archivePath archive.xcarchive -exportArchive -exportPath 'exportedApp.app' -exportOptionsPlist ./options.plist
-
-      - name: Create .dmg file
-        run: |
-          brew install create-dmg
-          create-dmg --app-drop-link 0 0 IINA.dmg ./exportedApp.app/IINA.app
+        run: make build
 
       - uses: actions/upload-artifact@v2
         with:

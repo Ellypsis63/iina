@@ -217,12 +217,11 @@
 		AD612C86275E030F0029668B /* libswscale.5.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 49717FA8272BA677003F328C /* libswscale.5.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		AD612C87275E030F0029668B /* libuchardet.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 49717FAF272BA677003F328C /* libuchardet.0.dylib */; };
 		AD612C88275E030F0029668B /* libuchardet.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 49717FAF272BA677003F328C /* libuchardet.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		AD612C89275E030F0029668B /* libz.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AD8315592759EDF100F6A8E8 /* libz.1.dylib */; };
-		AD612C8A275E030F0029668B /* libz.1.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = AD8315592759EDF100F6A8E8 /* libz.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		AD612C8B275E030F0029668B /* libzstd.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 49717FBE272BA678003F328C /* libzstd.1.dylib */; };
 		AD612C8C275E030F0029668B /* libzstd.1.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 49717FBE272BA678003F328C /* libzstd.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		AD612C8F275E030F0029668B /* libmujs.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AD612C8E275E030F0029668B /* libmujs.dylib */; };
 		AD612C90275E030F0029668B /* libmujs.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = AD612C8E275E030F0029668B /* libmujs.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		ADF39BE52764CC350053EF99 /* libmujs.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AD612C8E275E030F0029668B /* libmujs.dylib */; };
 		B4E446E825CB53920069F06E /* PromiseKit in Frameworks */ = {isa = PBXBuildFile; productRef = B4E446E725CB53920069F06E /* PromiseKit */; };
 		B4E446F225CB53FF0069F06E /* Gzip in Frameworks */ = {isa = PBXBuildFile; productRef = B4E446F125CB53FF0069F06E /* Gzip */; };
 		B4E446F725CB54EF0069F06E /* Mustache in Frameworks */ = {isa = PBXBuildFile; productRef = B4E446F625CB54EF0069F06E /* Mustache */; };
@@ -368,7 +367,6 @@
 				AD612C66275E030E0029668B /* libfribidi.0.dylib in Embed Libraries */,
 				AD612C84275E030F0029668B /* libswresample.3.dylib in Embed Libraries */,
 				AD612C7C275E030F0029668B /* libpcre.1.dylib in Embed Libraries */,
-				AD612C8A275E030F0029668B /* libz.1.dylib in Embed Libraries */,
 				AD612C8C275E030F0029668B /* libzstd.1.dylib in Embed Libraries */,
 				AD612C52275E030E0029668B /* libavdevice.58.dylib in Embed Libraries */,
 			);
@@ -477,7 +475,6 @@
 		49717FA7272BA677003F328C /* libdav1d.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libdav1d.5.dylib; path = deps/lib/libdav1d.5.dylib; sourceTree = "<group>"; };
 		49717FA8272BA677003F328C /* libswscale.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libswscale.5.dylib; path = deps/lib/libswscale.5.dylib; sourceTree = "<group>"; };
 		49717FA9272BA677003F328C /* libcrypto.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.3.dylib; path = deps/lib/libcrypto.3.dylib; sourceTree = "<group>"; };
-		49717FAA272BA677003F328C /* libmujs.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmujs.so; path = deps/lib/libmujs.so; sourceTree = "<group>"; };
 		49717FAB272BA677003F328C /* libass.9.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libass.9.dylib; path = deps/lib/libass.9.dylib; sourceTree = "<group>"; };
 		49717FAC272BA677003F328C /* libpostproc.55.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpostproc.55.dylib; path = deps/lib/libpostproc.55.dylib; sourceTree = "<group>"; };
 		49717FAD272BA677003F328C /* libssl.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libssl.3.dylib; path = deps/lib/libssl.3.dylib; sourceTree = "<group>"; };
@@ -1448,7 +1445,6 @@
 				AD612C79275E030F0029668B /* libmpv.1.dylib in Frameworks */,
 				AD612C4B275E030E0029668B /* libarchive.13.dylib in Frameworks */,
 				AD612C8B275E030F0029668B /* libzstd.1.dylib in Frameworks */,
-				AD612C89275E030F0029668B /* libz.1.dylib in Frameworks */,
 				AD612C75275E030F0029668B /* liblz4.1.dylib in Frameworks */,
 				AD612C57275E030E0029668B /* libavutil.56.dylib in Frameworks */,
 				AD612C87275E030F0029668B /* libuchardet.0.dylib in Frameworks */,
@@ -1468,6 +1464,7 @@
 				AD612C5F275E030E0029668B /* libdav1d.5.dylib in Frameworks */,
 				B4E446F225CB53FF0069F06E /* Gzip in Frameworks */,
 				AD612C7B275E030F0029668B /* libpcre.1.dylib in Frameworks */,
+				ADF39BE52764CC350053EF99 /* libmujs.dylib in Frameworks */,
 				AD612C63275E030E0029668B /* libfreetype.6.dylib in Frameworks */,
 				AD612C61275E030E0029668B /* libfontconfig.1.dylib in Frameworks */,
 				AD612C69275E030E0029668B /* libgraphite2.3.dylib in Frameworks */,
@@ -1619,7 +1616,6 @@
 				49717FA6272BA677003F328C /* liblz4.1.dylib */,
 				49717FC1272BA678003F328C /* liblzma.5.dylib */,
 				49717FBA272BA678003F328C /* libmpv.1.dylib */,
-				49717FAA272BA677003F328C /* libmujs.so */,
 				49717FB8272BA678003F328C /* libpcre.1.dylib */,
 				49717FAE272BA677003F328C /* libpng16.16.dylib */,
 				49717FAC272BA677003F328C /* libpostproc.55.dylib */,
