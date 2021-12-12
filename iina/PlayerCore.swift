@@ -43,7 +43,10 @@ class PlayerCore: NSObject {
   }
 
   static var newPlayerCore: PlayerCore {
-    return findIdlePlayerCore() ?? createPlayerCore()
+    let pc = findIdlePlayerCore() ?? createPlayerCore()
+    pc.enableDanmaku = false
+    pc.uuid = ""
+    return pc
   }
 
   static var activeOrNew: PlayerCore {
@@ -146,6 +149,10 @@ class PlayerCore: NSObject {
   var isPlaylistVisible: Bool {
     isInMiniPlayer ? miniPlayer.isPlaylistVisible : mainWindow.sideBarStatus == .playlist
   }
+  // Danmaku
+  var enableDanmaku = false
+  var uuid = ""
+  var dmPort = 19080
 
   /// The A loop point established by the [mpv](https://mpv.io/manual/stable/) A-B loop command.
   var abLoopA: Double {
@@ -284,6 +291,51 @@ class PlayerCore: NSObject {
       }
       openURL(url)
     }
+  }
+  
+  func openURLDirect(_ urls: [URL], args: [(String, String)]) {
+    guard let url = urls.first else { return }
+    let path = url.absoluteString
+    info.currentURL = url
+    info.isNetworkResource = !url.isFileURL
+    
+    let _ = mainWindow.window
+    if !mainWindow.window!.isVisible {
+      SleepPreventer.preventSleep()
+    }
+    initialWindow.close()
+    if isInMiniPlayer {
+      miniPlayer.showWindow(nil)
+    } else {
+      mainWindow.showWindow(nil)
+      mainWindow.windowDidOpen()
+    }
+    
+    mainWindow.initDanamaku()
+
+    // Send load file command
+    info.fileLoading = true
+    info.justOpenedFile = true
+
+    var argsStr = ""
+    
+    args.enumerated().forEach {
+      // force-media-title="xxx",ytdl="no",referrer="xxxx",audio-file="xxx"
+      
+      argsStr += $0.element.0
+      argsStr += "="
+      argsStr += "\""
+      argsStr += $0.element.1
+      argsStr += "\""
+      
+      if $0.offset < (args.count - 1) {
+        argsStr += ","
+      }
+    }
+    Logger.log("Opening \(path) with \(argsStr) in main window directly", subsystem: subsystem)
+    mpv.command(.loadfile, args: [path,
+                                  "replace",
+                                  argsStr], checkError: true)
   }
 
   private func openMainWindow(path: String, url: URL, isNetwork: Bool) {
@@ -1412,6 +1464,8 @@ class PlayerCore: NSObject {
         if #available(macOS 10.12.2, *) {
           self.touchBarSupport.updateTouchBarPlayBtn()
         }
+        guard self.enableDanmaku else { return }
+        self.mainWindow.updateDanmakuStatus(self.info.isPaused)
       }
 
     case .volume, .muteButton:

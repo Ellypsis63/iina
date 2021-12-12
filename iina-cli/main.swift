@@ -56,6 +56,12 @@ if userArgs.contains(where: { $0 == "--help" || $0 == "-h" }) {
             if you would like to keep it running until the main application exits.
     --pip:
             Enter Picture-in-Picture after opening the media.
+    --danmaku:
+            Enable the webview for danmaku.
+    --directly:
+            Open url and mpv options with loadfile.
+    --uuid=*:
+            Danmaku websocket id.
     --help | -h:
             Print this message.
 

@@ -8,6 +8,7 @@
 
 import Cocoa
 import Mustache
+import WebKit
 
 fileprivate let TitleBarHeightNormal: CGFloat = {
   if #available(macOS 10.16, *) {
@@ -457,6 +458,12 @@ class MainWindowController: PlayerWindowController {
 
   override var mouseActionDisabledViews: [NSView?] {[sideBarView, currentControlBar, titleBarView, subPopoverView]}
 
+  // MARK: - danmaku
+
+  var danmakuWebView: WKWebView!
+  var danmakuWebViewConstraints: [NSLayoutConstraint.Attribute: NSLayoutConstraint] = [:]
+  var danmakuFinishLoading = false
+
   // MARK: - PIP
 
   @available(macOS 10.12, *)
@@ -517,8 +524,9 @@ class MainWindowController: PlayerWindowController {
     fadeableViews.append(titleBarView)
     fadeableViews.append(titlebarAccessoryView)
 
-    // video view
     guard let cv = window.contentView else { return }
+    
+    // video view
     cv.autoresizesSubviews = false
     addVideoViewToWindow()
     window.setIsVisible(true)
@@ -611,6 +619,47 @@ class MainWindowController: PlayerWindowController {
       return position * percent / 100
     } else {
       return 0
+    }
+  }
+  
+  func initDanamaku() {
+    // danmaku view
+    guard let window = window,
+          let cv = window.contentView,
+          let url = URL(string: "http://127.0.0.1:\(player.dmPort)/danmaku/index.htm") else { return }
+    danmakuFinishLoading = false
+    
+    if danmakuWebView != nil, player.enableDanmaku {
+      Logger.log("\(#function) reload.")
+      danmakuWebView.reload()
+    } else if danmakuWebView == nil, player.enableDanmaku {
+      Logger.log("\(#function) init.")
+      danmakuWebView = WKWebView()
+      danmakuWebView.navigationDelegate = self
+      
+      danmakuWebView.setValue(false, forKey: "drawsBackground")
+      danmakuWebView.configuration.preferences.setValue(true, forKey: "allowFileAccessFromFileURLs")
+      #if DEBUG
+      danmakuWebView.configuration.preferences.setValue(true, forKey: "developerExtrasEnabled")
+      #endif
+      
+      danmakuWebView.load(URLRequest(url: url))
+      
+      cv.addSubview(danmakuWebView, positioned: .above, relativeTo: videoView)
+      danmakuWebView.translatesAutoresizingMaskIntoConstraints = false
+      // add constraints
+      ([.top, .bottom, .left, .right] as [NSLayoutConstraint.Attribute]).forEach { attr in
+        danmakuWebViewConstraints[attr] = NSLayoutConstraint(item: danmakuWebView!, attribute: attr, relatedBy: .equal, toItem: cv, attribute: attr, multiplier: 1, constant: 0)
+        danmakuWebViewConstraints[attr]!.isActive = true
+      }
+    } else if !player.enableDanmaku {
+      Logger.log("\(#function) stop.")
+      danmakuWebView?.stopLoading()
+      danmakuWebView?.navigationDelegate = nil
+      danmakuWebView = nil
+      cv.subviews.removeAll {
+        $0 is WKWebView
+      }
     }
   }
 
@@ -835,14 +884,18 @@ class MainWindowController: PlayerWindowController {
   }
 
   override func mouseDragged(with event: NSEvent) {
+    let currentLocation = event.locationInWindow
     if isResizingSidebar {
       // resize sidebar
-      let currentLocation = event.locationInWindow
       let newWidth = window!.frame.width - currentLocation.x - 2
       sideBarWidthConstraint.constant = newWidth.clamped(to: PlaylistMinWidth...PlaylistMaxWidth)
     } else if !fsState.isFullscreen {
+      if let p1 = mousePosRelatedToWindow, !isDragging {
+        let p2 = currentLocation
+        let distance = sqrt(pow((p1.x - p2.x), 2) + pow((p1.y - p2.y), 2))
+        isDragging = distance > 0.5
+      }
       // move the window by dragging
-      isDragging = true
       guard !controlBarFloating.isDragging else { return }
       if mousePosRelatedToWindow != nil {
         window?.performDrag(with: event)
@@ -1087,6 +1140,8 @@ class MainWindowController: PlayerWindowController {
       p.lineBreakMode = .byTruncatingMiddle
       attrTitle.addAttribute(.paragraphStyle, value: p, range: NSRange(location: 0, length: attrTitle.length))
     }
+    
+    initDanamaku()
   }
 
   func windowWillClose(_ notification: Notification) {
@@ -1114,6 +1169,10 @@ class MainWindowController: PlayerWindowController {
     cv.trackingAreas.forEach(cv.removeTrackingArea)
     playSlider.trackingAreas.forEach(playSlider.removeTrackingArea)
     UserDefaults.standard.set(NSStringFromRect(window!.frame), forKey: "MainWindowLastPosition")
+    
+    // stop danmaku
+    player.enableDanmaku = false
+    initDanamaku()
   }
 
   // MARK: - Window delegate: Full screen
@@ -2826,4 +2885,36 @@ extension MainWindowController: PIPViewControllerDelegate {
 
 protocol SidebarViewController {
   var downShift: CGFloat { get set }
+}
+
+extension MainWindowController: WKNavigationDelegate {
+  func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+    Logger.log("Danmaku webView finish loading.")
+    danmakuFinishLoading = true
+    Logger.log("initContent('\(player.uuid)', '\(player.dmPort)');")
+    
+    evaluateJavaScript("initContent('\(player.uuid)', '\(player.dmPort)');")
+  }
+  
+  func evaluateJavaScript(_ str: String) {
+    guard danmakuFinishLoading else { return }
+    danmakuWebView.evaluateJavaScript(str) { _, error in
+      if let error = error {
+        Logger.log("webView.evaluateJavaScript error \(error)")
+      }
+    }
+  }
+  
+  func updateDanmakuTime(_ timePos: Double) {
+    evaluateJavaScript("window.cm.time(Math.floor(\(timePos * 1000)));")
+  }
+  
+  func updateDanmakuSize() {
+    evaluateJavaScript("window.resize();")
+  }
+  
+  func updateDanmakuStatus(_ isPaused: Bool) {
+    let str = isPaused ? "window.cm.stop();" : "window.cm.start();"
+    evaluateJavaScript(str)
+  }
 }

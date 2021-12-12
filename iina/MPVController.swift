@@ -89,7 +89,8 @@ class MPVController: NSObject {
     MPVOption.Window.windowScale: MPV_FORMAT_DOUBLE,
     MPVProperty.mediaTitle: MPV_FORMAT_STRING,
     MPVProperty.videoParamsRotate: MPV_FORMAT_INT64,
-    MPVProperty.idleActive: MPV_FORMAT_FLAG
+    MPVProperty.idleActive: MPV_FORMAT_FLAG,
+    MPVProperty.timePos: MPV_FORMAT_DOUBLE
   ]
 
   init(playerCore: PlayerCore) {
@@ -393,7 +394,7 @@ class MPVController: NSObject {
   }
 
   // MARK: - Command & property
-  
+
   private func makeCArgs(_ command: MPVCommand, _ args: [String?]) -> [String?] {
     if args.count > 0 && args.last == nil {
       Logger.fatal("Command do not need a nil suffix")
@@ -668,7 +669,7 @@ class MPVController: NSObject {
       } else {
         player.info.shouldAutoLoadFiles = false
       }
-      
+
     case MPV_EVENT_COMMAND_REPLY:
       let reply = event.pointee.reply_userdata
       if reply == MPVController.UserData.screenshot {
@@ -965,6 +966,9 @@ class MPVController: NSObject {
           self.player.mainWindow.setWindowScale(windowScale)
         }
       }
+      DispatchQueue.main.async {
+        self.player.mainWindow.updateDanmakuSize()
+      }
 
     case MPVProperty.mediaTitle:
       player.postNotification(.iinaMediaTitleChanged)
@@ -983,6 +987,14 @@ class MPVController: NSObject {
           player.closeMainWindow()
         }
         receivedEndFileWhileLoading = false
+      }
+
+    case MPVProperty.timePos:
+      let timePos = getDouble(MPVProperty.timePos)
+      DispatchQueue.main.async {
+        guard self.player.mainWindow.isWindowLoaded,
+          self.player.enableDanmaku else { return }
+        self.player.mainWindow.updateDanmakuTime(timePos)
       }
 
     default:

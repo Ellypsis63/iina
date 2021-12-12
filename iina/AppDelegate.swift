@@ -215,7 +215,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       var lastPlayerCore: PlayerCore? = nil
       let getNewPlayerCore = { () -> PlayerCore in
         let pc = PlayerCore.newPlayerCore
-        self.commandLineStatus.assignMPVArguments(to: pc)
+        let status = self.commandLineStatus
+        if !status.directly {
+          status.assignMPVArguments(to: pc)
+        }
+        pc.enableDanmaku = status.danmaku
+        if pc.enableDanmaku {
+          pc.uuid = status.uuid
+        }
         lastPlayerCore = pc
         return pc
       }
@@ -229,7 +236,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return FileManager.default.fileExists(atPath: filename) ? URL(fileURLWithPath: filename) : nil
           }
         }
-        if commandLineStatus.openSeparateWindows {
+        if commandLineStatus.directly {
+          getNewPlayerCore().openURLDirect(validFileURLs, args: self.commandLineStatus.mpvArguments)
+        } else if commandLineStatus.openSeparateWindows {
           validFileURLs.forEach { url in
             getNewPlayerCore().openURL(url)
           }
@@ -469,6 +478,60 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       }
 
       Logger.log("Finished URL scheme handling")
+    } else if host == "iina-plus.base64" {
+      // open a file or link
+      
+      guard let query = parsed.query,
+            let queryData = Data(base64Encoded: query),
+            let dicStr = String(data: queryData, encoding: .utf8) else { return }
+      
+      let queries = dicStr.split(separator: "👻").map(String.init).compactMap { str -> (name: String, value: String)? in
+        let kv = str.split(separator: "=", maxSplits: 1, omittingEmptySubsequences: true).map(String.init)
+        guard kv.count > 0 else { return nil }
+        let name = kv[0]
+        let value = kv.count == 2 ? kv[1] : ""
+        return (name, value)
+      }
+      
+      let queryDict = [String: String](uniqueKeysWithValues: queries)
+
+      // url
+      guard let urlValue = queryDict["url"], !urlValue.isEmpty else {
+        Logger.log("Cannot find parameter \"url\", stopped")
+        return
+      }
+
+      let player = PlayerCore.newPlayerCore
+      
+      
+      player.enableDanmaku = queryDict["danmaku"] != nil
+      player.uuid = queryDict["uuid"] ?? ""
+      
+      if let port = queryDict["dmPort"],
+         let p = Int(port) {
+        player.dmPort = p
+      }
+      
+      Logger.log("Danamaku uuid: \(player.uuid), port: \(player.dmPort).")
+      
+      // mpv options
+      
+      let options = queries.filter {
+        $0.name.hasPrefix("mpv_")
+      }.map {
+        (name: String($0.name.dropFirst(4)), value: $0.value)
+      }
+      
+      if queryDict["directly"] == nil {
+        player.openURLString(urlValue)
+        options.forEach {
+          player.mpv.setString($0.name, $0.value)
+        }
+      } else if let u = URL(string: urlValue) {
+        player.openURLDirect([u], args: options)
+      }
+      
+      Logger.log("Finished URL scheme handling")
     }
   }
 
@@ -610,9 +673,12 @@ struct CommandLineStatus {
   var isStdin = false
   var openSeparateWindows = false
   var enterPIP = false
+  var danmaku = false
+  var directly = false
   var mpvArguments: [(String, String)] = []
   var iinaArguments: [(String, String)] = []
   var filenames: [String] = []
+  var uuid = ""
 
   mutating func parseArguments(_ args: [String]) {
     mpvArguments.removeAll()
@@ -620,6 +686,7 @@ struct CommandLineStatus {
     for arg in args {
       let splitted = arg.dropFirst(2).split(separator: "=", maxSplits: 1)
       let name = String(splitted[0])
+      let value = splitted.count == 2 ? String(splitted[1]) : ""
       if (name.hasPrefix("mpv-")) {
         // mpv args
         if splitted.count <= 1 {
@@ -642,6 +709,15 @@ struct CommandLineStatus {
         }
         if name == "pip" {
           enterPIP = true
+        }
+        if name == "danmaku" {
+          danmaku = true
+        }
+        if name == "directly" {
+          directly = true
+        }
+        if name == "uuid" {
+          uuid = value
         }
       }
     }
