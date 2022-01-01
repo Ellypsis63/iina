@@ -1090,6 +1090,13 @@ class MainWindowController: PlayerWindowController {
   }
 
   func windowWillClose(_ notification: Notification) {
+    // If legacy full screen is enabled, the window is in full-screen mode and this Mac has a
+    // camera that intrudes into the screen then there is a black mask window behind the main window
+    // that blacks out the screen to the left and right of the camera that must be closed.
+    if maskWindow != nil {
+      maskWindow!.close()
+      maskWindow = nil
+    }
     shouldApplyInitialWindowSize = true
     // Close PIP
     if pipStatus == .inPIP {
